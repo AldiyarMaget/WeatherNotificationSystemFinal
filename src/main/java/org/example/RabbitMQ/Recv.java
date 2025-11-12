@@ -125,10 +125,4 @@ public class Recv {
     public static String weatherAPI() { return formatWeather(weatherAPI, "WeatherAPI"); }
     public static String googleWeather() { return formatWeather(googleWeather, "Google Weather"); }
 
-    public static void main(String[] args) throws Exception {
-        startListener();
-
-        while (true) Thread.sleep(1000);
-        //вызов метода чтения
-    }
 }

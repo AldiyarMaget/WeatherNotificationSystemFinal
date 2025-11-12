@@ -1,23 +1,23 @@
 {
-  "name" : "Nur-Sultan",
+  "name" : "London",
   "coord" : {
-    "lon" : 71.446,
-    "lat" : 51.1801
+    "lon" : -0.1257,
+    "lat" : 51.5085
   },
   "main" : {
-    "temp" : 269.12,
-    "feels_like" : 263.92,
-    "temp_min" : 269.12,
-    "temp_max" : 269.12,
+    "temp" : 286.37,
+    "feels_like" : 285.99,
+    "temp_min" : 284.82,
+    "temp_max" : 287.09,
     "humidity" : 86
   },
   "sys" : {
-    "country" : "KZ",
-    "sunrise" : 1763000851,
-    "sunset" : 1763033377
+    "country" : "GB",
+    "sunrise" : 1762931612,
+    "sunset" : 1762964156
   },
   "weather" : [ {
     "main" : "Clouds",
-    "description" : "scattered clouds"
+    "description" : "overcast clouds"
   } ]
 }
