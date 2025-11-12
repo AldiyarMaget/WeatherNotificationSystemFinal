@@ -1,0 +1,23 @@
+{
+  "name" : "GoogleWeather",
+  "coord" : {
+    "lon" : 71.43,
+    "lat" : 51.17
+  },
+  "main" : {
+    "temp" : -4.9,
+    "feels_like" : -9.5,
+    "temp_min" : -4.9,
+    "temp_max" : -4.9,
+    "humidity" : 0
+  },
+  "sys" : {
+    "country" : "Asia/Almaty",
+    "sunrise" : "",
+    "sunset" : ""
+  },
+  "weather" : [ {
+    "main" : "Partly cloudy",
+    "description" : "Partly cloudy"
+  } ]
+}

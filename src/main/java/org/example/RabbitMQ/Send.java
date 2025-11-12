@@ -5,7 +5,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 //в readme 1 заметка
 public class Send {
-    private final static String QUEUE_NAME = "hello";
+    private final static String QUEUE_NAME = "city";
     public static void main(String[] argv) throws Exception {
       ConnectionFactory factory = new ConnectionFactory();
       try (Connection connection = factory.newConnection();

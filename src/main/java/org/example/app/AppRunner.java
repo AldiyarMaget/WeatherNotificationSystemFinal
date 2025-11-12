@@ -77,12 +77,12 @@ public class AppRunner {
             if (apiKey.isEmpty()) apiKey = null;
             Map<String, LocationRegistry.Loc> cities = LocationRegistry.listCities();
             List<Map.Entry<String, LocationRegistry.Loc>> list = new ArrayList<>(cities.entrySet());
-            System.out.println("Select city:");
+            System.out.println("Select name:");
             for (int i = 0; i < list.size(); i++) {
                 Map.Entry<String, LocationRegistry.Loc> e = list.get(i);
                 System.out.printf("  %d) %s (lat=%s, lon=%s)%n", i + 1, e.getKey(), e.getValue().latitude(), e.getValue().longitude());
             }
-            String cityChoice = readLine("Enter number or city name (default 1): ", "1").trim();
+            String cityChoice = readLine("Enter number or name name (default 1): ", "1").trim();
             double lat = 51.1;
             double lon = 71.4;
             try {

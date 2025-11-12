@@ -1,0 +1,23 @@
+{
+  "name" : "Nur-Sultan",
+  "coord" : {
+    "lon" : 71.446,
+    "lat" : 51.1801
+  },
+  "main" : {
+    "temp" : 269.12,
+    "feels_like" : 263.92,
+    "temp_min" : 269.12,
+    "temp_max" : 269.12,
+    "humidity" : 86
+  },
+  "sys" : {
+    "country" : "KZ",
+    "sunrise" : 1763000851,
+    "sunset" : 1763033377
+  },
+  "weather" : [ {
+    "main" : "Clouds",
+    "description" : "scattered clouds"
+  } ]
+}

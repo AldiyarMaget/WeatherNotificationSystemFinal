@@ -1,0 +1,23 @@
+{
+  "name" : "Astana",
+  "coord" : {
+    "lon" : 71.4278,
+    "lat" : 51.1811
+  },
+  "main" : {
+    "temp" : -3.9,
+    "feels_like" : -8.2,
+    "temp_min" : 0,
+    "temp_max" : 0,
+    "humidity" : 86
+  },
+  "sys" : {
+    "country" : "Kazakhstan",
+    "sunrise" : "08:28 AM",
+    "sunset" : "05:29 PM"
+  },
+  "weather" : [ {
+    "main" : "",
+    "description" : ""
+  } ]
+}
