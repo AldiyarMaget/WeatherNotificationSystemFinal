@@ -1,0 +1,23 @@
+{
+  "name" : "GoogleWeather",
+  "coord" : {
+    "lon" : -0.13,
+    "lat" : 51.51
+  },
+  "main" : {
+    "temp" : 13.1,
+    "feels_like" : 12,
+    "temp_min" : 13.1,
+    "temp_max" : 13.1,
+    "humidity" : 0
+  },
+  "sys" : {
+    "country" : "Europe/London",
+    "sunrise" : "",
+    "sunset" : ""
+  },
+  "weather" : [ {
+    "main" : "Cloudy",
+    "description" : "Cloudy"
+  } ]
+}

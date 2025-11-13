@@ -1,0 +1,23 @@
+{
+  "name" : "London",
+  "coord" : {
+    "lon" : -0.1062,
+    "lat" : 51.5171
+  },
+  "main" : {
+    "temp" : 12.2,
+    "feels_like" : 10.3,
+    "temp_min" : 0,
+    "temp_max" : 0,
+    "humidity" : 94
+  },
+  "sys" : {
+    "country" : "United Kingdom",
+    "sunrise" : "07:14 AM",
+    "sunset" : "04:15 PM"
+  },
+  "weather" : [ {
+    "main" : "",
+    "description" : ""
+  } ]
+}
