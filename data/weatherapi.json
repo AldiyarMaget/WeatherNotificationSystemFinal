@@ -1,20 +1,20 @@
 {
-  "name" : "London",
+  "name" : "Astana",
   "coord" : {
-    "lon" : -0.1062,
-    "lat" : 51.5171
+    "lon" : 71.4278,
+    "lat" : 51.1811
   },
   "main" : {
-    "temp" : 12.2,
-    "feels_like" : 10.3,
+    "temp" : -1.8,
+    "feels_like" : -6.2,
     "temp_min" : 0,
     "temp_max" : 0,
-    "humidity" : 94
+    "humidity" : 86
   },
   "sys" : {
-    "country" : "United Kingdom",
-    "sunrise" : "07:14 AM",
-    "sunset" : "04:15 PM"
+    "country" : "Kazakhstan",
+    "sunrise" : "08:29 AM",
+    "sunset" : "05:28 PM"
   },
   "weather" : [ {
     "main" : "",

@@ -1,123 +1,60 @@
 package org.example.RabbitMQ;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.nio.charset.StandardCharsets;
 
 public class Recv {
-    private static final String QUEUE_NAME = "weather";
-    private static final ObjectMapper mapper = new ObjectMapper();
 
-    private static JsonNode openWeather;
-    private static JsonNode weatherAPI;
-    private static JsonNode googleWeather;
+    private final static String QUEUE_NAME = "weather_response";
 
-    private static int counter = 0;
-
-    public void startListener() throws Exception {
+    public static void startListening() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
+        factory.setUsername("guest");
+        factory.setPassword("guest");
+
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         System.out.println("[*] Waiting for messages...");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), "UTF-8");
-            JsonNode json = mapper.readTree(message);
+            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            System.out.println("[x] Received raw JSON:\n" + message);
 
-            String filePath = null;
+            // Пример парсинга
+            JSONObject json = new JSONObject(message);
+            System.out.println("[x] Source: " + json.getString("Name"));
+            JSONObject coord = json.getJSONObject("Coord");
+            System.out.println("[x] Coordinates: " + coord.getDouble("lat") + ", " + coord.getDouble("lon"));
 
-            switch (counter) {
-                case 0 -> {
-                    openWeather = json;
-                    filePath = "data/openweather.json";
-                    System.out.println("OpenWeather received");
+            JSONArray days = json.getJSONArray("Days");
+            for (int i = 0; i < days.length(); i++) {
+                JSONObject day = days.getJSONObject(i);
+                System.out.println("Date: " + day.getString("Date"));
+                JSONObject main = day.getJSONObject("Main");
+                System.out.println("Temp: " + main.getDouble("temp") +
+                        ", FeelsLike: " + main.getDouble("feels_like") +
+                        ", Min: " + main.getDouble("temp_min") +
+                        ", Max: " + main.getDouble("temp_max"));
+
+                JSONArray weatherArr = day.getJSONArray("Weather");
+                for (int j = 0; j < weatherArr.length(); j++) {
+                    JSONObject w = weatherArr.getJSONObject(j);
+                    System.out.println("Weather: " + w.getString("main") +
+                            ", Description: " + w.getString("description"));
                 }
-                case 1 -> {
-                    weatherAPI = json;
-                    filePath = "data/weatherapi.json";
-                    System.out.println("WeatherAPI received");
-                }
-                case 2 -> {
-                    googleWeather = json;
-                    filePath = "data/googleweather.json";
-                    System.out.println("GoogleWeather received");
-                }
-            }
-
-            counter = (counter + 1) % 3;
-
-            // сохраняем JSON в файл, перезаписываем
-            if (filePath != null) saveJsonToFile(json, filePath);
-
-            // выводим блок только если все три объекта получены
-            if (openWeather != null && weatherAPI != null && googleWeather != null) {
-                System.out.println("\n=== ACTUAL WEATHER ===");
-                System.out.println(openWeather());
-                System.out.println(weatherAPI());
-                System.out.println(googleWeather());
-                System.out.println("====================\n");
+                System.out.println("---");
             }
         };
 
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {});
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+
+        System.out.println("Listening. Press Ctrl+C to exit.");
+        Thread.currentThread().join(); // блокируем основной поток
     }
-
-    private static void saveJsonToFile(JsonNode json, String path) {
-        try {
-            File folder = new File("data");
-            if (!folder.exists()) folder.mkdirs(); // создаём папку, если нет
-            FileWriter writer = new FileWriter(path);
-            writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json));
-            writer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static String parseTime(JsonNode node) {
-        if (node.isTextual()) return node.asText();
-        long ts = node.asLong() * 1000L;
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Almaty"));
-        return sdf.format(new Date(ts));
-    }
-
-    private static String formatWeather(JsonNode json, String apiName) {
-        if (json == null) return apiName + ": нет данных";
-        String name = json.path("name").asText("-");
-        String country = json.path("sys").path("country").asText("-");
-        double temp = json.path("main").path("temp").asDouble(Double.NaN);
-        double feels = json.path("main").path("feels_like").asDouble(Double.NaN);
-        int humidity = json.path("main").path("humidity").asInt(-1);
-        String mainW = json.path("weather").get(0).path("main").asText("-");
-        String desc = json.path("weather").get(0).path("description").asText("-");
-        String sunrise = parseTime(json.path("sys").path("sunrise"));
-        String sunset = parseTime(json.path("sys").path("sunset"));
-
-        return "\n--- " + apiName + " ---\n" +
-                "Город: " + name + " (" + country + ")\n" +
-                "Температура: " + temp + "°C (ощущается как " + feels + "°C)\n" +
-                "Влажность: " + humidity + "%\n" +
-                "Погода: " + mainW + " (" + desc + ")\n" +
-                "Восход: " + sunrise + "\n" +
-                "Закат: " + sunset;
-    }
-
-    public JsonNode getOpenWeatherJson() { return openWeather; }
-    public JsonNode getWeatherAPIJson() { return weatherAPI; }
-    public JsonNode getGoogleWeatherJson() { return googleWeather; }
-
-    public String openWeather() { return formatWeather(openWeather, "OpenWeather"); }
-    public String weatherAPI() { return formatWeather(weatherAPI, "WeatherAPI"); }
-    public String googleWeather() { return formatWeather(googleWeather, "Google Weather"); }
-
 }
