@@ -8,11 +8,12 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws Exception {
         Send send = new Send();
+        Recv recv = new Recv();
 
         // этот блок отвечает за вывод данных о погоде запуская Recv
         new Thread(() -> {
             try {
-                Recv.startListener();
+                recv.startListener();
             } catch (Exception e) {
                 e.printStackTrace();
             }

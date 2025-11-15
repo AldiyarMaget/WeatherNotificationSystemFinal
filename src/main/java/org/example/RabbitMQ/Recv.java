@@ -20,7 +20,7 @@ public class Recv {
 
     private static int counter = 0;
 
-    public static void startListener() throws Exception {
+    public void startListener() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
@@ -65,11 +65,6 @@ public class Recv {
                 System.out.println(weatherAPI());
                 System.out.println(googleWeather());
                 System.out.println("====================\n");
-
-                // сброс для получениях следущих данных
-                openWeather = null;
-                weatherAPI = null;
-                googleWeather = null;
             }
         };
 
@@ -117,12 +112,12 @@ public class Recv {
                 "Закат: " + sunset;
     }
 
-    public static JsonNode getOpenWeatherJson() { return openWeather; }
-    public static JsonNode getWeatherAPIJson() { return weatherAPI; }
-    public static JsonNode getGoogleWeatherJson() { return googleWeather; }
+    public JsonNode getOpenWeatherJson() { return openWeather; }
+    public JsonNode getWeatherAPIJson() { return weatherAPI; }
+    public JsonNode getGoogleWeatherJson() { return googleWeather; }
 
-    public static String openWeather() { return formatWeather(openWeather, "OpenWeather"); }
-    public static String weatherAPI() { return formatWeather(weatherAPI, "WeatherAPI"); }
-    public static String googleWeather() { return formatWeather(googleWeather, "Google Weather"); }
+    public String openWeather() { return formatWeather(openWeather, "OpenWeather"); }
+    public String weatherAPI() { return formatWeather(weatherAPI, "WeatherAPI"); }
+    public String googleWeather() { return formatWeather(googleWeather, "Google Weather"); }
 
 }

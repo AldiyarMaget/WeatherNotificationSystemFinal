@@ -1,4 +1,4 @@
-package org.example.builder;
+package org.example.builderTelegram;
 //потом адаптирую
 public class WeatherReportImpl implements WeatherReportBuilder {
     WeatherReport weatherReport = new WeatherReport();

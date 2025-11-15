@@ -2,6 +2,7 @@ package org.example.observer;
 
 import org.example.core.WeatherData;
 
+//TODO Это убрат
 public class PhoneAppObserver implements Observer {
     private final String deviceId;
     public PhoneAppObserver(String deviceId) { this.deviceId = deviceId; }

@@ -3,6 +3,8 @@ package org.example.app;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+//TODO Это убрат
+
 public final class LocationRegistry {
 
     public static class Loc {

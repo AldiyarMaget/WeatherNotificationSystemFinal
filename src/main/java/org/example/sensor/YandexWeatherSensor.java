@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+//TODO Это убрат
+
 public class YandexWeatherSensor implements Sensor {
     private static final String URL = "https://api.weather.yandex.ru/graphql/query";
     private final String apiKey;
@@ -88,7 +90,7 @@ public class YandexWeatherSensor implements Sensor {
 
             double pressure = Double.NaN;
             if (!now.path("pressure").isMissingNode() && !now.path("pressure").isNull()) {
-                pressure = asDoubleOrNaN(now, "pressure"); // скорее всего hPa
+                pressure = asDoubleOrNaN(now, "pressure");
             }
 
             if (Double.isNaN(temp) || Double.isNaN(hum)) {

@@ -1,9 +1,11 @@
 package org.example.core;
 
+import org.example.core.exceptions.SensorException;
 import org.example.observer.Observer;
 import org.example.observer.Observed;
 import org.example.strategy.UpdateStrategy;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +73,11 @@ public class WeatherStation implements Observed {
             currentStrategy = next;
             if (currentStrategy != null) {
                 System.out.println("[WeatherStation] starting strategy: " + currentStrategy.name());
-                currentStrategy.start(this);
+                try {
+                    currentStrategy.start(this);
+                } catch (SensorException | IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

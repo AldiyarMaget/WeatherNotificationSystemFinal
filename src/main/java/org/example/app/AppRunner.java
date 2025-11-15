@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+//TODO Это изменить после фасада
+
 public class AppRunner {
     private final WeatherAppFacade app;
     private final Scanner scanner = new Scanner(System.in);

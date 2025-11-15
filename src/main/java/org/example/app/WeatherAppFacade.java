@@ -2,7 +2,6 @@ package org.example.app;
 
 import org.example.observer.ConsoleDisplay;
 import org.example.observer.Observer;
-import org.example.observer.PhoneAppObserver;
 import org.example.strategy.ManualInputStrategy;
 import org.example.strategy.StrategyFactory;
 import org.example.strategy.UpdateStrategy;
@@ -12,7 +11,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+//TODO Это полнасту удрат и реализоват
 public class WeatherAppFacade {
+    private static final int MINIMUM_PERIOD_IN_SECOND = 5;
     private final WeatherStation station = new WeatherStation();
     private final Map<String, Observer> observers = Collections.synchronizedMap(new LinkedHashMap<>());
 
@@ -27,16 +28,16 @@ public class WeatherAppFacade {
         }
     }
 
-    public String registerPhone(String deviceId) {
-        String id = safeName(deviceId, "phone1");
-        synchronized (observers) {
-            if (observers.containsKey(id)) return "observer '" + id + "' already exists";
-            Observer o = new PhoneAppObserver(id);
-            observers.put(id, o);
-            station.addSubscriber(o);
-            return "phone attached: " + id;
-        }
-    }
+//    public String registerPhone(String deviceId) {
+//        String id = safeName(deviceId, "phone1");
+//        synchronized (observers) {
+//            if (observers.containsKey(id)) return "observer '" + id + "' already exists";
+//            Observer o = new PhoneAppObserver(id);
+//            observers.put(id, o);
+//            station.addSubscriber(o);
+//            return "phone attached: " + id;
+//        }
+//    }
 
     public String unregisterObserver(String name) {
         if (name == null || name.trim().isEmpty()) return "name required";
@@ -49,7 +50,7 @@ public class WeatherAppFacade {
     }
 
     public String enableManualInput() {
-        UpdateStrategy st = StrategyFactory.createManual();
+        UpdateStrategy st = StrategyFactory.create();
         station.setStrategy(st);
         return "manual strategy set";
     }
@@ -58,8 +59,8 @@ public class WeatherAppFacade {
         try {
             Map<String, String> params = new LinkedHashMap<>();
             params.put("type", "sim");
-            params.put("period", Long.toString(Math.max(1, periodSeconds)));
-            UpdateStrategy st = StrategyFactory.createPolling(params);
+            params.put("period", Long.toString(Math.max(MINIMUM_PERIOD_IN_SECOND, periodSeconds)));
+            UpdateStrategy st = StrategyFactory.create(params);
             station.setStrategy(st);
             return "polling(sim) strategy set: " + st.name();
         } catch (Exception e) {
@@ -74,8 +75,8 @@ public class WeatherAppFacade {
             params.put("apikey", apiKey == null ? "" : apiKey);
             params.put("lat", Double.toString(lat));
             params.put("lon", Double.toString(lon));
-            params.put("period", Long.toString(Math.max(1, periodSeconds)));
-            UpdateStrategy st = StrategyFactory.createPolling(params);
+            params.put("period", Long.toString(Math.max(MINIMUM_PERIOD_IN_SECOND, periodSeconds)));
+            UpdateStrategy st = StrategyFactory.create(params);
             station.setStrategy(st);
             return "polling(yandex) strategy set: " + st.name();
         } catch (Exception e) {

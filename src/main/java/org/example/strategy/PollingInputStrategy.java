@@ -5,14 +5,16 @@ import org.example.core.WeatherStation;
 import org.example.core.exceptions.SensorException;
 import org.example.sensor.Sensor;
 
-public class SensorPollingStrategy implements UpdateStrategy {
+import java.io.IOException;
+
+public class PollingInputStrategy implements UpdateStrategy {
     private final Sensor sensor;
     private final long periodSeconds;
     private volatile boolean running = false;
     private Thread worker;
-    private static final long MIN_PERIOD_SECONDS = 30;
+    private static final long MIN_PERIOD_SECONDS = 5;
 
-    public SensorPollingStrategy(Sensor sensor, long periodSeconds) {
+    public PollingInputStrategy(Sensor sensor, long periodSeconds) {
         this.sensor = sensor;
         this.periodSeconds = Math.max(MIN_PERIOD_SECONDS, periodSeconds);
     }
@@ -28,6 +30,8 @@ public class SensorPollingStrategy implements UpdateStrategy {
                     station.publish(data);
                 } catch (SensorException ex) {
                     System.out.println("[SensorPollingStrategy] sensor read error: " + ex.getMessage());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
                 try {
                     Thread.sleep(periodSeconds * 1000L);
