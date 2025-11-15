@@ -6,7 +6,7 @@ import org.example.core.exceptions.SensorException;
 import org.example.sensor.Sensor;
 
 import java.io.IOException;
-
+/*
 public class PollingInputStrategy implements UpdateStrategy {
     private final Sensor sensor;
     private final long periodSeconds;
@@ -59,3 +59,4 @@ public class PollingInputStrategy implements UpdateStrategy {
         return "sensor-polling";
     }
 }
+*/

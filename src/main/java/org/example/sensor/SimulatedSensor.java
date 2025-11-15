@@ -1,8 +1,9 @@
 package org.example.sensor;
-
+/*
 import org.example.core.WeatherData;
 import org.example.core.exceptions.SensorException;
 
+import java.util.List;
 import java.util.Random;
 
 //TODO пусть будет для теста
@@ -11,7 +12,7 @@ public class SimulatedSensor implements Sensor {
     private final Random rnd = new Random();
 
     @Override
-    public WeatherData read() throws SensorException {
+    public List<WeatherData> read() throws SensorException {
         String city = "TestCity";
 
         double temperature = 5 + rnd.nextDouble() * 25;
@@ -40,3 +41,4 @@ public class SimulatedSensor implements Sensor {
                 .build();
     }
 }
+*/

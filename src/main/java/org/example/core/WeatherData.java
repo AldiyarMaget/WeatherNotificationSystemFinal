@@ -7,10 +7,15 @@ public record WeatherData(
         double minTemperature,
         double maxTemperature,
         double humidity,
+        double cloudCover,
+        double precipitationPercent,
+        double windSpeed,
+        String windDirection,
         String country,
         String sunrise,
         String sunset,
         String description,
+        String date,
         String mainInfo
 ) {
     public static Builder builder() {
@@ -26,10 +31,15 @@ public record WeatherData(
                 ", minTemperature=" + minTemperature +
                 ", maxTemperature=" + maxTemperature +
                 ", humidity=" + humidity +
+                ", cloudCover=" + cloudCover +
+                ", precipitationPercent=" + precipitationPercent +
+                ", windSpeed=" + windSpeed +
+                ", windDirection='" + windDirection + '\'' +
                 ", country='" + country + '\'' +
                 ", sunrise='" + sunrise + '\'' +
                 ", sunset='" + sunset + '\'' +
                 ", description='" + description + '\'' +
+                ", date='" + date + '\''+
                 ", mainInfo='" + mainInfo + '\'' +
                 '}';
     }
@@ -41,10 +51,15 @@ public record WeatherData(
         private double minTemperature = 0.0;
         private double maxTemperature = 0.0;
         private double humidity = 0.0;
+        private int cloudCover = 0;
+        private double precipitationPercent = 0.0;
+        private double windSpeed = 0.0;
+        private String windDirection = "";
         private String country = "";
         private String sunrise = "";
         private String sunset = "";
         private String description = "";
+        private String date = "";
         private String main = "";
 
         public Builder() {
@@ -80,6 +95,11 @@ public record WeatherData(
             return this;
         }
 
+        public Builder cloudCover(int cloudCover) {
+            this.cloudCover = cloudCover;
+            return this;
+        }
+
         public Builder country(String country) {
             this.country = country != null ? country : "";
             return this;
@@ -100,10 +120,36 @@ public record WeatherData(
             return this;
         }
 
+        public Builder date(String date) {
+            this.date = date != null ? date : "";
+            return this;
+        }
+
         public Builder mainInfo(String main) {
             this.main = main != null ? main : "";
             return this;
         }
+
+        public Builder precipitationPercent(double precipitationPercent) {
+            this.precipitationPercent = precipitationPercent;
+            return this;
+        }
+
+        public Builder windSpeed(double windSpeed) {
+            this.windSpeed = windSpeed;
+            return this;
+        }
+
+        public Builder windDirection(String windDirection) {
+            this.windDirection = windDirection != null ? windDirection : "";
+            return this;
+        }
+
+        public Builder cloudCover(double cloudCover) {
+            this.cloudCover = (int) cloudCover;
+            return this;
+        }
+
 
         public WeatherData build() {
             return new WeatherData(
@@ -113,12 +159,19 @@ public record WeatherData(
                     minTemperature,
                     maxTemperature,
                     humidity,
+                    cloudCover,
+                    precipitationPercent,
+                    windSpeed,
+                    windDirection,
                     country,
                     sunrise,
                     sunset,
                     description,
+                    date,
                     main
             );
         }
+
+
     }
 }

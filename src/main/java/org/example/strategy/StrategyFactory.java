@@ -3,7 +3,7 @@ package org.example.strategy;
 import org.example.sensor.*;
 
 import java.util.Objects;
-
+/*
 public class StrategyFactory {
 
 
@@ -21,3 +21,4 @@ public class StrategyFactory {
         return new ManualInputStrategy(sensor);
     }
 }
+*/

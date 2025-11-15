@@ -6,7 +6,7 @@ import org.example.core.exceptions.SensorException;
 import org.example.sensor.Sensor;
 
 import java.io.IOException;
-
+/*
 public class ManualInputStrategy implements UpdateStrategy {
     private volatile WeatherStation station;
     private final Sensor sensor;
@@ -32,3 +32,4 @@ public class ManualInputStrategy implements UpdateStrategy {
         return "manual";
     }
 }
+*/

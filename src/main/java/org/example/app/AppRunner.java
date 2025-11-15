@@ -1,5 +1,5 @@
 package org.example.app;
-
+/*
 import org.example.sensor.GoogleWeatherCurrentSensor;
 import org.example.sensor.Sensor;
 import org.example.strategy.StrategyFactory;
@@ -63,3 +63,4 @@ public class AppRunner {
 
     }
 }
+*/
