@@ -1,14 +1,17 @@
 package org.example.RabbitMQ;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 
 public class Recv {
 
-    private final static String QUEUE_NAME = "weather_response";
+    private static final String QUEUE_RESPONSE = "weather_response";
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public static void startListening() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -19,42 +22,54 @@ public class Recv {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.queueDeclare(QUEUE_RESPONSE, false, false, false, null);
+
         System.out.println("[*] Waiting for messages...");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            System.out.println("[x] Received raw JSON:\n" + message);
+            String json = new String(delivery.getBody(), StandardCharsets.UTF_8);
 
-            // Пример парсинга
-            JSONObject json = new JSONObject(message);
-            System.out.println("[x] Source: " + json.getString("Name"));
-            JSONObject coord = json.getJSONObject("Coord");
-            System.out.println("[x] Coordinates: " + coord.getDouble("lat") + ", " + coord.getDouble("lon"));
+            System.out.println("[x] Received JSON:");
+            System.out.println(json);
 
-            JSONArray days = json.getJSONArray("Days");
-            for (int i = 0; i < days.length(); i++) {
-                JSONObject day = days.getJSONObject(i);
-                System.out.println("Date: " + day.getString("Date"));
-                JSONObject main = day.getJSONObject("Main");
-                System.out.println("Temp: " + main.getDouble("temp") +
-                        ", FeelsLike: " + main.getDouble("feels_like") +
-                        ", Min: " + main.getDouble("temp_min") +
-                        ", Max: " + main.getDouble("temp_max"));
+            try {
+                JsonNode root = mapper.readTree(json);
+                String type = root.path("type").asText().trim().toLowerCase();
 
-                JSONArray weatherArr = day.getJSONArray("Weather");
-                for (int j = 0; j < weatherArr.length(); j++) {
-                    JSONObject w = weatherArr.getJSONObject(j);
-                    System.out.println("Weather: " + w.getString("mainInfo") +
-                            ", Description: " + w.getString("description"));
-                }
-                System.out.println("---");
+                String filename = switch (type) {
+                    case "current" -> "googleweathercurrent.json";
+                    case "3 hour", "hour" -> "googleweatherhour.json";
+                    case "today" -> "googleweathertoday.json";
+                    case "tomorrow" -> "googleweathertomorrow.json";
+                    case "week" -> "googleweatherweekly.json";
+                    default -> "googleweather_unknown.json";
+                };
+
+                saveJsonToFile(json, filename);
+            } catch (Exception e) {
+                System.out.println("[ERROR] Failed to process JSON:");
+                e.printStackTrace();
             }
         };
 
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+        channel.basicConsume(QUEUE_RESPONSE, true, deliverCallback, consumerTag -> {});
+    }
 
-        System.out.println("Listening. Press Ctrl+C to exit.");
-        Thread.currentThread().join(); // блокируем основной поток
+    private static void saveJsonToFile(String json, String filename) {
+        try {
+            File folder = new File("data");
+            if (!folder.exists()) folder.mkdirs();
+
+            File file = new File(folder, filename);
+
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(json);
+            }
+
+            System.out.println("[+] Saved to: " + file.getAbsolutePath());
+        } catch (Exception e) {
+            System.out.println("[ERROR] Failed to save file:");
+            e.printStackTrace();
+        }
     }
 }

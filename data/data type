@@ -1,0 +1,49 @@
+current
+String request = """
+                {
+                  "city": "city",
+                  "type": "current",
+                  "period": 0,
+                  "station": "station"
+                }
+                """;
+
+next 3 hour
+String request = """
+                {
+                  "city": "city",
+                  "type": "hour",
+                  "period": 3,
+                  "station": "station"
+                }
+                """;
+
+today
+String request = """
+                {
+                  "city": "city",
+                  "type": "day",
+                  "period": 1,
+                  "station": "station"
+                }
+                """;
+
+tomorrow
+String request = """
+                {
+                  "city": "city",
+                  "type": "day",
+                  "period": 2,
+                  "station": "station"
+                }
+                """;
+
+next 5 days
+String request = """
+                {
+                  "city": "city",
+                  "type": "day",
+                  "period": 5,
+                  "station": "station"
+                }
+                """;

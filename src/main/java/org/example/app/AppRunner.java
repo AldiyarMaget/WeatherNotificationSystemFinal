@@ -1,9 +1,7 @@
 package org.example.app;
 
-import org.example.sensor.GoogleWeatherSensor;
-import org.example.sensor.OpenWeatherSensor;
+import org.example.sensor.GoogleWeatherCurrentSensor;
 import org.example.sensor.Sensor;
-import org.example.sensor.WeatherAPISensor;
 import org.example.strategy.StrategyFactory;
 
 import java.util.Scanner;
@@ -44,16 +42,7 @@ public class AppRunner {
         System.out.println(LIST_WEATHER_APP);
 
         int option = scanner.nextInt();
-        switch(option){
-            case 1:
-                chooseStrategy(sensor = new GoogleWeatherSensor());
-                break;
-            case 2:
-                chooseStrategy(sensor = new OpenWeatherSensor());
-                break;
-            case 3:
-                chooseStrategy(sensor = new WeatherAPISensor());
-        }
+
     }
 
     private void chooseStrategy(Sensor sensor){

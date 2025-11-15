@@ -1,5 +1,6 @@
 package org.example.telegrambot;
 
+import org.example.RabbitMQ.Recv;
 import org.example.RabbitMQ.Send;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -234,10 +235,11 @@ public class Bot extends TelegramLongPollingBot {
             }
             """, city, type, period, data.station);
 
-        // Отправляем в RabbitMQ
-        Send.sendRequest(request);
+
 
         sendMessage(chatId, "Запрос отправлен в RabbitMQ: " + request);
+
+        sendMessage(chatId, "результат");
 
         userStates.put(chatId, UserState.START);
         tempData.remove(chatId);
