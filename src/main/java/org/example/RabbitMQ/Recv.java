@@ -45,7 +45,7 @@ public class Recv {
                 JSONArray weatherArr = day.getJSONArray("Weather");
                 for (int j = 0; j < weatherArr.length(); j++) {
                     JSONObject w = weatherArr.getJSONObject(j);
-                    System.out.println("Weather: " + w.getString("main") +
+                    System.out.println("Weather: " + w.getString("mainInfo") +
                             ", Description: " + w.getString("description"));
                 }
                 System.out.println("---");

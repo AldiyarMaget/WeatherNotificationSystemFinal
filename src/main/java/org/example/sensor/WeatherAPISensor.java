@@ -15,9 +15,9 @@ public class WeatherAPISensor implements Sensor{
         JsonNode root = mapper.readTree(file);
 
         String city = root.get("city").asText();
-        double temperature   = root.path("main").path("temp").asDouble(0.0);
-        double feelsLike     = root.path("main").path("feels_like").asDouble(0.0);
-        double humidity   = root.path("main").path("humidity").asDouble(0.0);
+        double temperature   = root.path("mainInfo").path("temp").asDouble(0.0);
+        double feelsLike     = root.path("mainInfo").path("feels_like").asDouble(0.0);
+        double humidity   = root.path("mainInfo").path("humidity").asDouble(0.0);
 
         String country = root.path("sys").path("country").asText(null);
         String sunrise = root.path("sys").path("sunrise").asText(null);

@@ -11,7 +11,7 @@ public record WeatherData(
         String sunrise,
         String sunset,
         String description,
-        String main
+        String mainInfo
 ) {
     public static Builder builder() {
         return new Builder();
@@ -30,7 +30,7 @@ public record WeatherData(
                 ", sunrise='" + sunrise + '\'' +
                 ", sunset='" + sunset + '\'' +
                 ", description='" + description + '\'' +
-                ", main='" + main + '\'' +
+                ", mainInfo='" + mainInfo + '\'' +
                 '}';
     }
 

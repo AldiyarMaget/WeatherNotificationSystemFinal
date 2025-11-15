@@ -16,17 +16,17 @@ public class GoogleWeatherSensor implements Sensor {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(file);
 
-        double temperature   = root.path("main").path("temp").asDouble(0.0);
-        double feelsLike     = root.path("main").path("feels_like").asDouble(0.0);
-        double minTemperature= root.path("main").path("temp_min").asDouble(0.0);
-        double maxTemperature= root.path("main").path("temp_max").asDouble(0.0);
+        double temperature   = root.path("mainInfo").path("temp").asDouble(0.0);
+        double feelsLike     = root.path("mainInfo").path("feels_like").asDouble(0.0);
+        double minTemperature= root.path("mainInfo").path("temp_min").asDouble(0.0);
+        double maxTemperature= root.path("mainInfo").path("temp_max").asDouble(0.0);
 
         String country = root.path("sys").path("country").asText(null);
         String description = "";
         String main = "";
         if (root.path("weather").isArray() && !root.path("weather").isEmpty()) {
             description = root.path("weather").get(1).path("description").asText("");
-            main = root.path("weather").get(0).path("main").asText("");
+            main = root.path("weather").get(0).path("mainInfo").asText("");
         }
 
         return WeatherData
