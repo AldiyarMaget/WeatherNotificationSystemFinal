@@ -25,6 +25,7 @@ public class Bot extends TelegramLongPollingBot {
     }
 
 
+
     private Map<Long, UserState> userStates = new HashMap<>();
     private Map<Long, WeatherRequestData> tempData = new HashMap<>();
         private Map<String, Subscription> subscriptions = new HashMap<>();
