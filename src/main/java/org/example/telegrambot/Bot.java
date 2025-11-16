@@ -95,7 +95,7 @@ public class Bot extends TelegramLongPollingBot {
     private void handleCallback(long chatId, String callbackData) {
         if (callbackData.startsWith("weather_")) {
             tempData.put(chatId, new TempData());
-            tempData.get(chatId).period = callbackData.substring(8); // current, hour, today, tomorrow, week
+            tempData.get(chatId).period = callbackData.substring(8);
             sendMessage(chatId, "Введите город для запроса:");
             userStates.put(chatId, UserState.WEATHER_CITY);
 
@@ -105,7 +105,7 @@ public class Bot extends TelegramLongPollingBot {
                 case "sub_unsubscribe" -> showUnsubscribeList(chatId);
             }
         } else if (callbackData.startsWith("interval_")) {
-            String interval = callbackData.substring(9); // hour, day, week
+            String interval = callbackData.substring(9); // minute, hour, day, week
             tempData.put(chatId, new TempData());
             tempData.get(chatId).interval = interval;
             sendMessage(chatId, "Введите город для подписки:");
@@ -220,6 +220,7 @@ public class Bot extends TelegramLongPollingBot {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(createButton("Every Minute", "interval_minute")); // новая кнопка
         row.add(createButton("Every Hour", "interval_hour"));
         row.add(createButton("Every Day", "interval_day"));
         row.add(createButton("Every Week", "interval_week"));
@@ -229,6 +230,8 @@ public class Bot extends TelegramLongPollingBot {
 
         try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
+
+
 
     private void handleSubscribeCityInput(long chatId, String city) {
         TempData data = tempData.get(chatId);

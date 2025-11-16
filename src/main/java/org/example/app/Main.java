@@ -2,8 +2,6 @@ package org.example.app;
 
 import org.example.RabbitMQ.Recv;
 import org.example.RabbitMQ.Send;
-import org.example.sensor.GoogleWeatherCurrentSensor;
-import org.example.telegrambot.Bot;
 
 public class Main {
     public static void main(String[] args) throws Exception {

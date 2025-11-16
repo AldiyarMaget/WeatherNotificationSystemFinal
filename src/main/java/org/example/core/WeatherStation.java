@@ -16,6 +16,7 @@ public class WeatherStation implements Observed {
     private volatile UpdateStrategy currentStrategy;
     private final Object strategyLock = new Object();
     private Sensor sensor;
+    private final List<Observer> observers = new ArrayList<>();
 
     @Override
     public void addSubscriber(Observer subscriber) {
@@ -99,8 +100,20 @@ public class WeatherStation implements Observed {
         this.sensor = sensor;
     }
 
-    public List<WeatherData> readSensor() throws IOException, SensorException {
+    public List<WeatherData> readSensor(String city, String period) throws IOException, SensorException {
         if (sensor == null) throw new IOException("Sensor not set");
         return sensor.read();
+    }
+
+    public void addObserver(Observer o) {
+        synchronized (observers) {
+            observers.add(o);
+        }
+    }
+
+    public void removeObserver(Observer o) {
+        synchronized (observers) {
+            observers.remove(o);
+        }
     }
 }

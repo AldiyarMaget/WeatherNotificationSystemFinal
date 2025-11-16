@@ -13,15 +13,18 @@ public class SubscriptionManager {
         return db.getSubscriptions(chatId);
     }
 
-    public static SubscriptionDB.Subscription addSubscription(long chatId, String city, String interval) {
+    public static SubscriptionDB.Subscription addSubscription(
+            long chatId,
+            String city,
+            String interval
+    ){
         db.addSubscription(chatId, city, interval);
-        // возвращаем последнюю добавленную подписку
         List<SubscriptionDB.Subscription> list = db.getSubscriptions(chatId);
         return list.get(list.size() - 1);
     }
 
     public static boolean removeSubscription(long chatId, int id) {
         db.removeSubscription(id);
-        return true; // можно проверить через getSubscriptions(chatId)
+        return true;
     }
 }

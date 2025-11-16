@@ -10,6 +10,7 @@ public class ConsoleDisplay implements Observer {
 
     @Override
     public void update(List<WeatherData> data) {
+        System.out.println("[" + name + "] update: " + data);
 
     }
 

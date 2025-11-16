@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class GoogleWeatherCurrentSensor implements Sensor {
+    public GoogleWeatherCurrentSensor() {
+
+    }
+
     @Override
     public List<WeatherData> read() throws IOException {
         File file = new File("data/googleweathercurrent.json");

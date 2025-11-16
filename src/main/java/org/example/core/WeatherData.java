@@ -24,24 +24,22 @@ public record WeatherData(
 
     @Override
     public String toString() {
-        return "WeatherData{" +
-                "city='" + city + '\'' +
-                ", temperature=" + temperature +
-                ", feelsLike=" + feelsLike +
-                ", minTemperature=" + minTemperature +
-                ", maxTemperature=" + maxTemperature +
-                ", humidity=" + humidity +
-                ", cloudCover=" + cloudCover +
-                ", precipitationPercent=" + precipitationPercent +
-                ", windSpeed=" + windSpeed +
-                ", windDirection='" + windDirection + '\'' +
-                ", country='" + country + '\'' +
-                ", sunrise='" + sunrise + '\'' +
-                ", sunset='" + sunset + '\'' +
-                ", description='" + description + '\'' +
-                ", date='" + date + '\''+
-                ", mainInfo='" + mainInfo + '\'' +
-                '}';
+        return "Weather Data:\n" +
+                "Temperature: " + temperature + "\n" +
+                "Feels Like: " + feelsLike + "\n" +
+                "Min Temperature: " + minTemperature + "\n" +
+                "Max Temperature: " + maxTemperature + "\n" +
+                "Humidity: " + humidity + "\n" +
+                "Cloud Cover: " + cloudCover + "\n" +
+                "Precipitation Probability: " + precipitationPercent + "\n" +
+                "Wind Speed: " + windSpeed + "\n" +
+                "Wind Direction: " + windDirection + "\n" +
+                "Country: " + country + "\n" +
+                "Sunrise: " + sunrise + "\n" +
+                "Sunset: " + sunset + "\n" +
+                "Description: " + description + "\n" +
+                "Date: " + date + "\n" +
+                "Main Info: " + mainInfo;
     }
 
     public static final class Builder {

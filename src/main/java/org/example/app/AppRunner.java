@@ -1,69 +1,106 @@
 package org.example.app;
+//8513493773:AAGWu0U0hlT5_fhRq7UQto_FtDav68K2UzQ
+/*@Override
+    public String getBotUsername() {
+        return "WeatehrNotificationsSDPbot";
+    }
 
-import org.example.sensor.GoogleWeatherCurrentSensor;
-import org.example.sensor.Sensor;
+    @Override
+    public String getBotToken() {
+        return "8513493773:AAGWu0U0hlT5_fhRq7UQto_FtDav68K2UzQ";
+    }*/
+import org.example.core.WeatherStation;
+import org.example.observer.ConsoleDisplay;
+import org.example.sensor.*;
 import org.example.strategy.StrategyFactory;
+import org.example.strategy.UpdateStrategy;
 
 import java.util.Scanner;
 
 public class AppRunner {
-    private final static String WELCOME_MESSAGE = "Welcome to the Weather Notification System!";
-    private final static String CHOOSE_OPTION_MESSAGE = "Chose option: ";
-    private static final String LIST_OPTION_MESSAGE = "\"1. Current Weather\"+\"\\n\"+\"2. Weather forecast\"+\"\\n\"+\"3. Change city\"+\"\\n\"";
-    private static final String CHOOSE_WEATHER_APP = "Choose Weather App: ";
-    private static final String LIST_WEATHER_APP = "1. Google Weather"+"\n"+"2. Open Weather"+"\n"+"3. Weather API"+"\n";
-    private static String city;
 
-    StrategyFactory strategyFactory = new StrategyFactory();
-    Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
+    private final StrategyFactory strategyFactory = new StrategyFactory();
 
-    public void run(){
-        System.out.println(WELCOME_MESSAGE);
+    public void run() {
+        System.out.println("=== Weather Notification System ===");
 
-        while(true){
-            System.out.println("Which city do you want to know the weather in?");
-            this.city = scanner.nextLine();
+        while (true) {
+            System.out.println("Enter city:");
+            String city = scanner.nextLine().trim();
 
-            System.out.println(LIST_OPTION_MESSAGE);
-            System.out.println(CHOOSE_OPTION_MESSAGE);
-            int option = scanner.nextInt();
+            Sensor sensor = chooseWeatherType(city);
+            UpdateStrategy strategy = chooseStrategy(sensor);
 
-            switch(option){
-                case 1:
-                    chooseWeatherApp();
+            WeatherStation station = new WeatherStation();
+            station.addObserver(new ConsoleDisplay("Console"));
+
+            try {
+                strategy.start(station);
+            } catch (Exception ex) {
+                System.out.println("Error starting strategy: " + ex.getMessage());
+            }
+
+            System.out.println("Strategy started. Press Enter to continue...");
+            scanner.nextLine();
+        }
+    }
+
+    private Sensor chooseWeatherType(String city) {
+        System.out.println("Choose weather type:");
+        System.out.println("1. Current weather");
+        System.out.println("2. Current weather");
+        System.out.println("3. Today weather");
+        System.out.println("4. Tomorrow weather");
+        System.out.println("5. Forecast (5 days)");
+
+        int opt = readInt();
+        return switch (opt) {
+            case 1 -> new GoogleWeatherCurrentSensor();
+            case 2 -> new GoogleWeatherHourSensor();
+            case 3 -> new GoogleWeatherTodaySensor();
+            case 4 -> new GoogleWeatherTomorrowSensor();
+            case 5 -> new GoogleWeatherWeeklySensor();
+            default -> {
+                System.out.println("Invalid choice. Default: current.");
+                yield new GoogleWeatherCurrentSensor();
+            }
+        };
+    }
+
+    private UpdateStrategy chooseStrategy(Sensor sensor) {
+        System.out.println("Choose strategy:");
+        System.out.println("1. Manual (one-time request)");
+        System.out.println("2. Polling (repeat request)");
+
+        int opt = readInt();
+
+        return switch (opt) {
+            case 1 -> strategyFactory.create(sensor);
+            case 2 -> {
+                System.out.println("Enter polling period (seconds, minimum 5):");
+                int period = readInt();
+                yield strategyFactory.create(sensor, period);
+            }
+            default -> {
+                System.out.println("Invalid selection. Default: manual.");
+                yield strategyFactory.create(sensor);
+            }
+        };
+    }
+
+    private int readInt() {
+        while (true) {
+            try {
+                int v = Integer.parseInt(scanner.nextLine());
+                return v;
+            } catch (Exception ex) {
+                System.out.println("Enter a valid number:");
             }
         }
-
     }
 
-    private void chooseWeatherApp(){
-        Sensor sensor;
-        System.out.println(CHOOSE_WEATHER_APP);
-        System.out.println(LIST_WEATHER_APP);
-
-        int option = scanner.nextInt();
-
-    }
-
-    private void chooseStrategy(Sensor sensor){
-        System.out.println("Which strategy do you want to use?");
-        System.out.println("1. Manual"+"\n"+"2. Polling"+"\n");
-
-        int option = scanner.nextInt();
-        switch(option){
-            case 1:
-                strategyFactory.create(sensor);
-                break;
-            case 2:
-                choosePeriod(sensor);
-        }
-    }
-
-    private void choosePeriod(Sensor sensor){
-
-    }
     public static void main(String[] args) {
-        AppRunner appRunner = new AppRunner();
-        appRunner.run();
+        new AppRunner().run();
     }
 }

@@ -11,15 +11,20 @@ public abstract class UpdateStrategy {
     protected volatile boolean running = false;
     protected Thread thread;
 
+    protected String city;
+    protected String period;
+
     public abstract long getIntervalMillis();
     public abstract String name();
 
-    public void start(WeatherStation station) {
+    public void start(WeatherStation station, String city, String period) {
+        this.city = city;
+        this.period = period;
         running = true;
         thread = new Thread(() -> {
             while (running) {
                 try {
-                    List<WeatherData> list = station.readSensor();
+                    List<WeatherData> list = station.readSensor(city, period);
                     for (WeatherData wd : list) {
                         station.publish(wd);
                     }
