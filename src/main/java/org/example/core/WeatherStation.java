@@ -100,6 +100,11 @@ public class WeatherStation implements Observed {
         this.sensor = sensor;
     }
 
+    public List<WeatherData> readSensor(String city) throws IOException, SensorException {
+        if (sensor == null) throw new IOException("Sensor not set");
+        return sensor.read(city);
+    }
+
     public void addObserver(Observer o) {
         synchronized (observers) {
             observers.add(o);
