@@ -4,6 +4,7 @@ import org.example.core.WeatherData;
 import org.example.core.exceptions.SensorException;
 import org.example.sensor.*;
 import org.example.subscribers.Subscription;
+import org.example.subscribers.SubscriptionDB;
 import org.example.subscribers.SubscriptionManager;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -182,7 +183,6 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private String formatWeatherData(Object wd) {
-        // Преобразование WeatherData в красивый текст
         return wd.toString();
     }
 
@@ -192,6 +192,9 @@ public class Bot extends TelegramLongPollingBot {
         btn.setCallbackData(callbackData);
         return btn;
     }
+
+    // Добавляем поле базы данных в Bot
+    private final SubscriptionDB subscriptionDB = new SubscriptionDB();
 
     // ---------------- SUBSCRIPTION ----------------
     private void showSubscriptionMenu(long chatId) {
@@ -232,29 +235,49 @@ public class Bot extends TelegramLongPollingBot {
     private void handleSubscribeCityInput(long chatId, String city) {
         TempData data = tempData.get(chatId);
         if (data == null) return;
-        Subscription s = SubscriptionManager.addSubscription(chatId, city, data.interval);
-        sendMessage(chatId, "Подписка создана: " + s);
+
+        // добавляем подписку только в БД
+        subscriptionDB.addSubscription(chatId, city, data.interval);
+
+        sendMessage(chatId, "Подписка создана: город = " + city + ", интервал = " + data.interval);
         tempData.remove(chatId);
         userStates.put(chatId, UserState.START);
     }
 
     private void showUnsubscribeList(long chatId) {
-        List<Subscription> list = SubscriptionManager.callSubscribeList(chatId);
+        List<SubscriptionDB.Subscription> list = subscriptionDB.getSubscriptions(chatId); // только БД
         if (list.isEmpty()) {
             sendMessage(chatId, "У вас нет подписок");
             return;
         }
         StringBuilder sb = new StringBuilder("Ваши подписки:\n");
-        for (Subscription s : list) sb.append(s).append("\n");
+        for (SubscriptionDB.Subscription s : list) {
+            sb.append("ID: ").append(s.id)
+                    .append(" | Город: ").append(s.city)
+                    .append(" | Интервал: ").append(s.strategyType)
+                    .append("\n");
+        }
         sendMessage(chatId, sb.toString());
         sendMessage(chatId, "Введите ID подписки для удаления:");
         userStates.put(chatId, UserState.UNSUBSCRIBE_ID);
     }
 
+
+
     private void handleUnsubscribeIdInput(long chatId, String input) {
         try {
             int id = Integer.parseInt(input);
-            boolean removed = SubscriptionManager.removeSubscription(chatId, id);
+
+            // Получаем все подписки пользователя
+            List<SubscriptionDB.Subscription> list = subscriptionDB.getSubscriptions(chatId);
+            boolean removed = list.stream().anyMatch(s -> {
+                if (s.id == id) {
+                    subscriptionDB.removeSubscription(id);
+                    return true;
+                }
+                return false;
+            });
+
             sendMessage(chatId, removed ? "Подписка удалена" : "Такой подписки нет");
         } catch (NumberFormatException e) {
             sendMessage(chatId, "Введите корректный ID");
@@ -262,7 +285,8 @@ public class Bot extends TelegramLongPollingBot {
         userStates.put(chatId, UserState.START);
     }
 
-    // ---------------- UTIL ----------------
+
+
     public void sendMessage(long chatId, String text) {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId);
@@ -270,7 +294,6 @@ public class Bot extends TelegramLongPollingBot {
         try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
-    // ---------------- MAIN ----------------
     public static void main(String[] args) throws TelegramApiException {
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         Bot bot = new Bot();

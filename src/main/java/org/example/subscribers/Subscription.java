@@ -13,6 +13,7 @@ public class Subscription {
         this.id = id;
     }
 
+
     public long getChatId() { return chatId; }
     public String getCity() { return city; }
     public String getInterval() { return interval; }

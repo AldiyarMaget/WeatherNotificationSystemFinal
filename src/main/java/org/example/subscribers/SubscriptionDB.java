@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SubscriptionDB {
-    private final String url = "jdbc:postgresql://localhost:5432/weatherbot";
+    private final String url = "jdbc:postgresql://localhost:5432/postgres";
     private final String user = "postgres";
-    private final String password = "yourpassword";
+    private final String password = "123456";
 
     public SubscriptionDB() {
         try (Connection conn = DriverManager.getConnection(url, user, password);
@@ -61,6 +61,26 @@ public class SubscriptionDB {
                         rs.getInt("id"),
                         rs.getLong("chat_id"),
                         rs.getString("city"),
+                        rs.getString("strategy_type") // здесь хранится интервал
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    public List<Subscription> getAllSubscriptions() {
+        List<Subscription> list = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM subscriptions")) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Subscription(
+                        rs.getInt("id"),
+                        rs.getLong("chat_id"),
+                        rs.getString("city"),
                         rs.getString("strategy_type")
                 ));
             }
@@ -69,6 +89,8 @@ public class SubscriptionDB {
         }
         return list;
     }
+
+
 
     public static class Subscription {
         public final int id;
@@ -83,4 +105,6 @@ public class SubscriptionDB {
             this.strategyType = strategyType;
         }
     }
+
+
 }

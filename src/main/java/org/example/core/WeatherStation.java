@@ -99,8 +99,8 @@ public class WeatherStation implements Observed {
         this.sensor = sensor;
     }
 
-    public WeatherData readSensor() throws IOException, SensorException {
+    public List<WeatherData> readSensor() throws IOException, SensorException {
         if (sensor == null) throw new IOException("Sensor not set");
-        return sensor.read().get(0); // твои сенсоры возвращают List<WeatherData>
+        return sensor.read();
     }
 }

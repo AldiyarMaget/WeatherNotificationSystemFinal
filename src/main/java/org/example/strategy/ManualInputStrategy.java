@@ -6,6 +6,7 @@ import org.example.core.exceptions.SensorException;
 import org.example.sensor.Sensor;
 
 import java.io.IOException;
+import java.util.List;
 /*
 public class ManualInputStrategy implements UpdateStrategy {
     private volatile WeatherStation station;
@@ -18,7 +19,7 @@ public class ManualInputStrategy implements UpdateStrategy {
     @Override
     public void start(WeatherStation station) throws SensorException, IOException {
         this.station = station;
-        WeatherData data = sensor.read();
+        List<WeatherData> data = sensor.read();
         station.publish(data);
     }
 

@@ -6,6 +6,7 @@ import org.example.core.exceptions.SensorException;
 import org.example.sensor.Sensor;
 
 import java.io.IOException;
+import java.util.List;
 /*
 public class PollingInputStrategy implements UpdateStrategy {
     private final Sensor sensor;
@@ -26,7 +27,7 @@ public class PollingInputStrategy implements UpdateStrategy {
         worker = new Thread(() -> {
             while (running) {
                 try {
-                    WeatherData data = sensor.read();
+                    List<WeatherData> data = sensor.read();
                     station.publish(data);
                 } catch (SensorException ex) {
                     System.out.println("[SensorPollingStrategy] sensor read error: " + ex.getMessage());

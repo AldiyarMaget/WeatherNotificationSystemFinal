@@ -5,6 +5,7 @@ import org.example.core.WeatherStation;
 import org.example.core.exceptions.SensorException;
 
 import java.io.IOException;
+import java.util.List;
 
 public abstract class UpdateStrategy {
     protected volatile boolean running = false;
@@ -18,8 +19,10 @@ public abstract class UpdateStrategy {
         thread = new Thread(() -> {
             while (running) {
                 try {
-                    WeatherData data = station.readSensor(); // может бросить IOException
-                    station.publish(data);
+                    List<WeatherData> list = station.readSensor();
+                    for (WeatherData wd : list) {
+                        station.publish(wd);
+                    }
                 } catch (IOException | SensorException e) {
                     e.printStackTrace();
                 }

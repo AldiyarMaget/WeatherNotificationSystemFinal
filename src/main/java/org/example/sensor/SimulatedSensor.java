@@ -1,8 +1,9 @@
 package org.example.sensor;
-/*
+
 import org.example.core.WeatherData;
 import org.example.core.exceptions.SensorException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -25,7 +26,7 @@ public class SimulatedSensor implements Sensor {
         String sunset = "07:00PM";
         String mainInfo = "TestMainInfo";
         String description = "TestDescription";
-        return WeatherData
+        return Collections.singletonList(WeatherData
                 .builder()
                 .city(city)
                 .temperature(temperature)
@@ -38,7 +39,6 @@ public class SimulatedSensor implements Sensor {
                 .country(country)
                 .description(description)
                 .mainInfo(mainInfo)
-                .build();
+                .build());
     }
 }
-*/

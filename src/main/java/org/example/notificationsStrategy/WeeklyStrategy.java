@@ -5,7 +5,9 @@ import org.example.core.WeatherData;
 
 public class WeeklyStrategy extends UpdateStrategy {
     @Override
-    public long getIntervalMillis() { return 7L*24*60*60*1000; }
+    public long getIntervalMillis() { return 7L * 24 * 60 * 60 * 1000; }
+
     @Override
     public String name() { return "Weekly"; }
 }
+
