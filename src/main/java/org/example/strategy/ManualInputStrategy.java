@@ -7,7 +7,7 @@ import org.example.sensor.Sensor;
 
 import java.io.IOException;
 import java.util.List;
-/*
+
 public class ManualInputStrategy implements UpdateStrategy {
     private volatile WeatherStation station;
     private final Sensor sensor;
@@ -20,7 +20,11 @@ public class ManualInputStrategy implements UpdateStrategy {
     public void start(WeatherStation station) throws SensorException, IOException {
         this.station = station;
         List<WeatherData> data = sensor.read();
-        station.publish(data);
+        if (data != null) {
+            for (WeatherData weatherData : data) {
+                station.publish(weatherData);
+            }
+        }
     }
 
     @Override
@@ -33,4 +37,3 @@ public class ManualInputStrategy implements UpdateStrategy {
         return "manual";
     }
 }
-*/

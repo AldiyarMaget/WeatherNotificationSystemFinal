@@ -7,7 +7,7 @@ import org.example.sensor.Sensor;
 
 import java.io.IOException;
 import java.util.List;
-/*
+
 public class PollingInputStrategy implements UpdateStrategy {
     private final Sensor sensor;
     private final long periodSeconds;
@@ -28,7 +28,9 @@ public class PollingInputStrategy implements UpdateStrategy {
             while (running) {
                 try {
                     List<WeatherData> data = sensor.read();
-                    station.publish(data);
+                    for (WeatherData weatherData : data) {
+                        station.publish(weatherData);
+                    }
                 } catch (SensorException ex) {
                     System.out.println("[SensorPollingStrategy] sensor read error: " + ex.getMessage());
                 } catch (IOException e) {
@@ -60,4 +62,3 @@ public class PollingInputStrategy implements UpdateStrategy {
         return "sensor-polling";
     }
 }
-*/

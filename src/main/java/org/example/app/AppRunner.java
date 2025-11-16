@@ -1,5 +1,5 @@
 package org.example.app;
-/*
+
 import org.example.sensor.GoogleWeatherCurrentSensor;
 import org.example.sensor.Sensor;
 import org.example.strategy.StrategyFactory;
@@ -62,5 +62,8 @@ public class AppRunner {
     private void choosePeriod(Sensor sensor){
 
     }
+    public static void main(String[] args) {
+        AppRunner appRunner = new AppRunner();
+        appRunner.run();
+    }
 }
-*/
