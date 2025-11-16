@@ -24,7 +24,7 @@ public class GoogleWeatherCurrentSensor implements Sensor {
         }
 
         try {
-            sleep(1000);
+            sleep(2000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

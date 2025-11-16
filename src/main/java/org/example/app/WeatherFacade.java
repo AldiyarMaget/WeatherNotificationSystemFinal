@@ -2,8 +2,6 @@ package org.example.app;
 
 import org.example.core.WeatherData;
 import org.example.core.WeatherStation;
-import org.example.notificationsStrategy.Context;
-import org.example.notificationsStrategy.UpdateStrategy;
 
 import java.io.IOException;
 import java.util.List;

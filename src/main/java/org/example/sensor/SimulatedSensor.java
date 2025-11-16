@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 //TODO пусть будет для теста
-
+/*
 public class SimulatedSensor implements Sensor {
     private final Random rnd = new Random();
 
@@ -42,3 +42,4 @@ public class SimulatedSensor implements Sensor {
                 .build());
     }
 }
+*/

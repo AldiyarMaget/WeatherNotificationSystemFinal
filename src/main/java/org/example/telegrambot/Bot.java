@@ -1,5 +1,6 @@
 package org.example.telegrambot;
 
+import org.example.RabbitMQ.Send;
 import org.example.core.WeatherData;
 import org.example.core.exceptions.SensorException;
 import org.example.sensor.*;
@@ -129,29 +130,47 @@ public class Bot extends TelegramLongPollingBot {
         try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
-    private void handleWeatherCityInput(long chatId, String city) throws SensorException, IOException {
+    private void handleWeatherCityInput(long chatId, String city) {
         TempData data = tempData.get(chatId);
         if (data == null) return;
 
-        String period = data.period;
-        sendMessage(chatId, "Запрос отправлен: city=" + city + ", type=" + period);
+        String type = data.period;
+        sendMessage(chatId, "Запрос отправлен: city=" + city + ", type=" + type);
 
-        Sensor sensor = switch (data.period) {
-            case "current" -> new GoogleWeatherCurrentSensor();
-            case "today" -> new GoogleWeatherTodaySensor();
-            case "tomorrow" -> new GoogleWeatherTomorrowSensor();
-            case "week" -> new GoogleWeatherWeeklySensor();
-            default -> throw new IllegalArgumentException("Unknown type: " + data.period);
-        };
+        try {
+            Send.sendRequest(city, type);
+        } catch (Exception e) {
+            sendMessage(chatId, "Ошибка при отправке запроса: " + e.getMessage());
+            e.printStackTrace();
+        }
 
-        List<WeatherData> dataList = sensor.read();
-        for (WeatherData wd : dataList) {
-            sendMessage(chatId, wd.toString());
+        try {
+            Sensor sensor = switch (type) {
+                case "current" -> new GoogleWeatherCurrentSensor();
+                case "today" -> new GoogleWeatherTodaySensor();
+                case "tomorrow" -> new GoogleWeatherTomorrowSensor();
+                case "week" -> new GoogleWeatherWeeklySensor();
+                default -> throw new IllegalArgumentException("Unknown type: " + type);
+            };
+
+            List<WeatherData> results = sensor.read(String.valueOf(city));
+            if (results.isEmpty()) {
+                sendMessage(chatId, "Данные не найдены");
+            } else {
+                for (WeatherData wd : results) {
+                    sendMessage(chatId, wd.toString());
+                }
+            }
+
+        } catch (Exception e) {
+            sendMessage(chatId, "Ошибка при получении данных: " + e.getMessage());
+            e.printStackTrace();
         }
 
         tempData.remove(chatId);
         userStates.put(chatId, UserState.START);
     }
+
 
     private InlineKeyboardButton createButton(String text, String callbackData) {
         InlineKeyboardButton btn = new InlineKeyboardButton();
