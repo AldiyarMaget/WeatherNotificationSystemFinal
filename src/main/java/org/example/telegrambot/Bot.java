@@ -168,11 +168,5 @@ public class Bot extends TelegramLongPollingBot {
         try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
-    public static void main(String[] args) throws TelegramApiException {
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-        Bot bot = new Bot();
-        botsApi.registerBot(bot);
-        System.out.println("Bot started");
-    }
 }
 
