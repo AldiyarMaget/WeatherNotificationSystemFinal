@@ -1,6 +1,5 @@
 package org.example.app;
 
-import org.example.RabbitMQ.Recv;
 import org.example.facade.WeatherSystemFacade;
 import org.example.telegrambot.Bot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
