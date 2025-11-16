@@ -59,7 +59,7 @@ public class SubscriptionDB {
             while (rs.next()) {
                 list.add(new Subscription(
                         rs.getInt("id"),
-                        rs.getLong("chat_id"),
+                        rs.getLong("chat_id"), //айдишка пользователя
                         rs.getString("city"),
                         rs.getString("strategy_type") // здесь хранится интервал
                 ));
@@ -79,9 +79,9 @@ public class SubscriptionDB {
             while (rs.next()) {
                 list.add(new Subscription(
                         rs.getInt("id"),
-                        rs.getLong("chat_id"),
+                        rs.getLong("chat_id"),  //айдишка пользователя
                         rs.getString("city"),
-                        rs.getString("strategy_type")
+                        rs.getString("strategy_type") // здесь хранится интервал
                 ));
             }
         } catch (SQLException e) {

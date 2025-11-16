@@ -193,10 +193,8 @@ public class Bot extends TelegramLongPollingBot {
         return btn;
     }
 
-    // Добавляем поле базы данных в Bot
     private final SubscriptionDB subscriptionDB = new SubscriptionDB();
 
-    // ---------------- SUBSCRIPTION ----------------
     private void showSubscriptionMenu(long chatId) {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId);
@@ -236,7 +234,6 @@ public class Bot extends TelegramLongPollingBot {
         TempData data = tempData.get(chatId);
         if (data == null) return;
 
-        // добавляем подписку только в БД
         subscriptionDB.addSubscription(chatId, city, data.interval);
 
         sendMessage(chatId, "Подписка создана: город = " + city + ", интервал = " + data.interval);
@@ -262,13 +259,10 @@ public class Bot extends TelegramLongPollingBot {
         userStates.put(chatId, UserState.UNSUBSCRIBE_ID);
     }
 
-
-
     private void handleUnsubscribeIdInput(long chatId, String input) {
         try {
             int id = Integer.parseInt(input);
 
-            // Получаем все подписки пользователя
             List<SubscriptionDB.Subscription> list = subscriptionDB.getSubscriptions(chatId);
             boolean removed = list.stream().anyMatch(s -> {
                 if (s.id == id) {
