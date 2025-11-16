@@ -10,12 +10,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class GoogleWeatherCurrentSensor implements Sensor {
-    public GoogleWeatherCurrentSensor() {
-
-    }
 
     @Override
-    public List<WeatherData> read() throws IOException {
+    public List<WeatherData> read(String city) throws IOException {
+        String request = """
+                {
+                "city": "%s",
+                "type": "current"
+                }
+                """;
+
         File file = new File("data/googleweathercurrent.json");
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(file).path("data");

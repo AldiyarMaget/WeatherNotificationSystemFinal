@@ -49,7 +49,7 @@ public class AppRunner {
     private Sensor chooseWeatherType(String city) {
         System.out.println("Choose weather type:");
         System.out.println("1. Current weather");
-        System.out.println("2. Current weather");
+        System.out.println("2. Hour weather");
         System.out.println("3. Today weather");
         System.out.println("4. Tomorrow weather");
         System.out.println("5. Forecast (5 days)");

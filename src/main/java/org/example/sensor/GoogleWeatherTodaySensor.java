@@ -11,7 +11,7 @@ import java.util.List;
 
 public class GoogleWeatherTodaySensor implements Sensor {
     @Override
-    public List<WeatherData> read() throws IOException {
+    public List<WeatherData> read(String city) throws IOException {
         File file = new File("data/googleweathertoday.json");
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(file).path("data");

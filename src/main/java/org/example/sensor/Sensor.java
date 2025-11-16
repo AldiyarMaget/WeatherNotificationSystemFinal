@@ -8,5 +8,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface Sensor {
-    List<WeatherData> read() throws SensorException, IOException;
+    List<WeatherData> read(String city) throws SensorException, IOException;
 }
