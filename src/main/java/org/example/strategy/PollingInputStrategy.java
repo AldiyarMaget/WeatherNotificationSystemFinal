@@ -14,10 +14,12 @@ public class PollingInputStrategy implements UpdateStrategy {
     private volatile boolean running = false;
     private Thread worker;
     private static final long MIN_PERIOD_SECONDS = 5;
+    private final String city;
 
-    public PollingInputStrategy(Sensor sensor, long periodSeconds) {
+    public PollingInputStrategy(Sensor sensor, long periodSeconds, String city) {
         this.sensor = sensor;
         this.periodSeconds = Math.max(MIN_PERIOD_SECONDS, periodSeconds);
+        this.city = city;
     }
 
     @Override
@@ -27,7 +29,7 @@ public class PollingInputStrategy implements UpdateStrategy {
         worker = new Thread(() -> {
             while (running) {
                 try {
-                    List<WeatherData> data = sensor.read();
+                    List<WeatherData> data = sensor.read(city);
                     for (WeatherData weatherData : data) {
                         station.publish(weatherData);
                     }

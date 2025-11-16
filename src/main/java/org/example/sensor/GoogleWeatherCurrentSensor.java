@@ -2,6 +2,8 @@ package org.example.sensor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.RabbitMQ.Recv;
+import org.example.RabbitMQ.Send;
 import org.example.core.WeatherData;
 
 import java.io.File;
@@ -9,16 +11,29 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 public class GoogleWeatherCurrentSensor implements Sensor {
 
     @Override
     public List<WeatherData> read(String city) throws IOException {
-        String request = """
-                {
-                "city": "%s",
-                "type": "current"
-                }
-                """;
+        try {
+            Send.sendRequest(city,"current");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            Recv.startListening();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         File file = new File("data/googleweathercurrent.json");
         ObjectMapper mapper = new ObjectMapper();

@@ -1,14 +1,4 @@
 package org.example.app;
-//8513493773:AAGWu0U0hlT5_fhRq7UQto_FtDav68K2UzQ
-/*@Override
-    public String getBotUsername() {
-        return "WeatehrNotificationsSDPbot";
-    }
-
-    @Override
-    public String getBotToken() {
-        return "8513493773:AAGWu0U0hlT5_fhRq7UQto_FtDav68K2UzQ";
-    }*/
 import org.example.core.WeatherStation;
 import org.example.observer.ConsoleDisplay;
 import org.example.sensor.*;
@@ -29,8 +19,8 @@ public class AppRunner {
             System.out.println("Enter city:");
             String city = scanner.nextLine().trim();
 
-            Sensor sensor = chooseWeatherType(city);
-            UpdateStrategy strategy = chooseStrategy(sensor);
+            Sensor sensor = chooseWeatherType();
+            UpdateStrategy strategy = chooseStrategy(sensor, city);
 
             WeatherStation station = new WeatherStation();
             station.addObserver(new ConsoleDisplay("Console"));
@@ -46,7 +36,7 @@ public class AppRunner {
         }
     }
 
-    private Sensor chooseWeatherType(String city) {
+    private Sensor chooseWeatherType() {
         System.out.println("Choose weather type:");
         System.out.println("1. Current weather");
         System.out.println("2. Hour weather");
@@ -68,7 +58,7 @@ public class AppRunner {
         };
     }
 
-    private UpdateStrategy chooseStrategy(Sensor sensor) {
+    private UpdateStrategy chooseStrategy(Sensor sensor, String city) {
         System.out.println("Choose strategy:");
         System.out.println("1. Manual (one-time request)");
         System.out.println("2. Polling (repeat request)");
@@ -76,15 +66,15 @@ public class AppRunner {
         int opt = readInt();
 
         return switch (opt) {
-            case 1 -> strategyFactory.create(sensor);
+            case 1 -> strategyFactory.create(sensor, city);
             case 2 -> {
                 System.out.println("Enter polling period (seconds, minimum 5):");
                 int period = readInt();
-                yield strategyFactory.create(sensor, period);
+                yield strategyFactory.create(sensor, period, city);
             }
             default -> {
                 System.out.println("Invalid selection. Default: manual.");
-                yield strategyFactory.create(sensor);
+                yield strategyFactory.create(sensor, city);
             }
         };
     }
