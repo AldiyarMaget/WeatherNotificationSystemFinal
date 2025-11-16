@@ -3,6 +3,7 @@ package org.example.core;
 import org.example.core.exceptions.SensorException;
 import org.example.observer.Observer;
 import org.example.observer.Observed;
+import org.example.sensor.Sensor;
 import org.example.strategy.UpdateStrategy;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ public class WeatherStation implements Observed {
     private volatile WeatherData lastWeatherData;
     private volatile UpdateStrategy currentStrategy;
     private final Object strategyLock = new Object();
+    private Sensor sensor;
 
     @Override
     public void addSubscriber(Observer subscriber) {
@@ -91,5 +93,14 @@ public class WeatherStation implements Observed {
             if (currentStrategy != null) currentStrategy.stop();
         }
         System.out.println("[WeatherStation] shutdown complete");
+    }
+
+    public void setSensor(Sensor sensor) {
+        this.sensor = sensor;
+    }
+
+    public WeatherData readSensor() throws IOException, SensorException {
+        if (sensor == null) throw new IOException("Sensor not set");
+        return sensor.read().get(0); // твои сенсоры возвращают List<WeatherData>
     }
 }

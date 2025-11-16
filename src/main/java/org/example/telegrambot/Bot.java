@@ -3,14 +3,16 @@ package org.example.telegrambot;
 import org.example.core.WeatherData;
 import org.example.core.exceptions.SensorException;
 import org.example.sensor.*;
+import org.example.subscribers.Subscription;
+import org.example.subscribers.SubscriptionManager;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
@@ -19,18 +21,19 @@ import java.util.*;
 
 public class Bot extends TelegramLongPollingBot {
 
-    private Map<Long, UserState> userStates = new HashMap<>();
-    private Map<Long, WeatherRequestData> tempData = new HashMap<>();
+    private final Map<Long, UserState> userStates = new HashMap<>();
+    private final Map<Long, TempData> tempData = new HashMap<>();
 
     enum UserState {
         START,
-        WEATHER_PERIOD,
-        WEATHER_CITY
+        WEATHER_CITY,
+        SUBSCRIBE_CITY,
+        UNSUBSCRIBE_ID
     }
 
-    static class WeatherRequestData {
-        String period;
-        String city;
+    static class TempData {
+        String period; // для Weather
+        String interval; // для Subscription
     }
 
     @Override
@@ -46,75 +49,92 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            handleMessage(update);
+            try {
+                handleMessage(update.getMessage().getChatId(), update.getMessage().getText());
+            } catch (SensorException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } else if (update.hasCallbackQuery()) {
-            handleCallbackQuery(update);
+            handleCallback(update.getCallbackQuery().getMessage().getChatId(),
+                    update.getCallbackQuery().getData());
         }
     }
 
-    private void handleMessage(Update update) {
-        long chatId = update.getMessage().getChatId();
-        String messageText = update.getMessage().getText();
-        UserState currentState = userStates.getOrDefault(chatId, UserState.START);
+    private void handleMessage(long chatId, String text) throws SensorException, IOException {
+        UserState state = userStates.getOrDefault(chatId, UserState.START);
 
-        switch (currentState) {
+        switch (state) {
             case WEATHER_CITY:
-                handleWeatherCity(chatId, messageText);
+                handleWeatherCityInput(chatId, text);
                 break;
+            case SUBSCRIBE_CITY:
+                handleSubscribeCityInput(chatId, text);
+                break;
+            case UNSUBSCRIBE_ID:
+                handleUnsubscribeIdInput(chatId, text);
+                break;
+            case START:
             default:
-                switch (messageText) {
-                    case "/start":
-                        sendMainMenu(chatId);
-                        break;
-                    case "Weather":
-                        handleWeatherCommand(chatId);
-                        break;
-                    case "Subscription":
-                        sendMessage(chatId, "stfu");
-                        break;
-                    default:
-                        sendMessage(chatId, "sybau nigga");
-                        sendMainMenu(chatId);
-                        break;
+                if ("/start".equals(text)) {
+                    sendMainMenu(chatId);
+                } else if ("Weather".equals(text)) {
+                    showWeatherMenu(chatId);
+                } else if ("Subscription".equals(text)) {
+                    showSubscriptionMenu(chatId);
+                } else {
+                    sendMessage(chatId, "Неизвестная команда. Используйте главное меню.");
+                    sendMainMenu(chatId);
                 }
+                break;
         }
     }
 
-    private void handleCallbackQuery(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
-
+    private void handleCallback(long chatId, String callbackData) {
         if (callbackData.startsWith("weather_")) {
-            handleWeatherPeriod(chatId, callbackData.substring(8));
+            tempData.put(chatId, new TempData());
+            tempData.get(chatId).period = callbackData.substring(8); // current, hour, today, tomorrow, week
+            sendMessage(chatId, "Введите город для запроса:");
+            userStates.put(chatId, UserState.WEATHER_CITY);
+
+        } else if (callbackData.startsWith("sub_")) {
+            switch (callbackData) {
+                case "sub_subscribe" -> showSubscribeIntervalMenu(chatId);
+                case "sub_unsubscribe" -> showUnsubscribeList(chatId);
+            }
+        } else if (callbackData.startsWith("interval_")) {
+            String interval = callbackData.substring(9); // hour, day, week
+            tempData.put(chatId, new TempData());
+            tempData.get(chatId).interval = interval;
+            sendMessage(chatId, "Введите город для подписки:");
+            userStates.put(chatId, UserState.SUBSCRIBE_CITY);
         }
     }
 
     private void sendMainMenu(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Добро пожаловать! Выберите опцию:");
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText("Добро пожаловать! Выберите опцию:");
 
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
+        ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
+        KeyboardRow row = new KeyboardRow();
+        row.add("Weather");
+        row.add("Subscription");
 
-        KeyboardRow row1 = new KeyboardRow();
-        row1.add("Weather");
-        row1.add("Subscription");
-
-        keyboard.add(row1);
-        keyboardMarkup.setKeyboard(keyboard);
-        keyboardMarkup.setResizeKeyboard(true);
-        message.setReplyMarkup(keyboardMarkup);
+        keyboard.setKeyboard(Collections.singletonList(row));
+        keyboard.setResizeKeyboard(true);
+        msg.setReplyMarkup(keyboard);
 
         userStates.put(chatId, UserState.START);
 
-        sendMessage(message);
+        try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
-    private void handleWeatherCommand(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Выберите период:");
+    private void showWeatherMenu(long chatId) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText("Выберите период:");
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -130,101 +150,127 @@ public class Bot extends TelegramLongPollingBot {
 
         rows.add(row1);
         rows.add(row2);
-
         markup.setKeyboard(rows);
-        message.setReplyMarkup(markup);
 
-        userStates.put(chatId, UserState.WEATHER_PERIOD);
-        tempData.put(chatId, new WeatherRequestData());
+        msg.setReplyMarkup(markup);
 
-        sendMessage(message);
+        try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
-    private void handleWeatherPeriod(long chatId, String period) {
-        WeatherRequestData data = tempData.get(chatId);
+    private void handleWeatherCityInput(long chatId, String city) throws SensorException, IOException {
+        TempData data = tempData.get(chatId);
         if (data == null) return;
 
-        data.period = period;
+        String period = data.period;
+        sendMessage(chatId, "Запрос отправлен: city=" + city + ", type=" + period);
 
-        sendMessage(chatId, "Введите название города:");
-
-        userStates.put(chatId, UserState.WEATHER_CITY);
-    }
-
-    private Sensor getSensorByPeriod(String period) {
-        return switch (period) {
+        Sensor sensor = switch (data.period) {
             case "current" -> new GoogleWeatherCurrentSensor();
-            case "hour" -> new GoogleWeatherHourSensor();
             case "today" -> new GoogleWeatherTodaySensor();
             case "tomorrow" -> new GoogleWeatherTomorrowSensor();
             case "week" -> new GoogleWeatherWeeklySensor();
-            default -> new GoogleWeatherCurrentSensor();
+            default -> throw new IllegalArgumentException("Unknown type: " + data.period);
         };
-    }
 
-    private void handleWeatherCity(long chatId, String city) {
-        WeatherRequestData data = tempData.get(chatId);
-        if (data == null) return;
-
-        data.city = city;
-
-        Sensor sensor = getSensorByPeriod(data.period);
-
-        try {
-            List<WeatherData> weatherList = sensor.read();
-            for (WeatherData wd : weatherList) {
-                sendMessage(chatId, wd.toString());
-            }
-        } catch (IOException | SensorException e) {
-            sendMessage(chatId, "Ошибка при чтении данных погоды.");
-            e.printStackTrace();
+        List<WeatherData> dataList = sensor.read();
+        for (WeatherData wd : dataList) {
+            sendMessage(chatId, wd.toString());
         }
 
-        userStates.put(chatId, UserState.START);
         tempData.remove(chatId);
+        userStates.put(chatId, UserState.START);
+    }
+
+    private String formatWeatherData(Object wd) {
+        // Преобразование WeatherData в красивый текст
+        return wd.toString();
     }
 
     private InlineKeyboardButton createButton(String text, String callbackData) {
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText(text);
-        button.setCallbackData(callbackData);
-        return button;
+        InlineKeyboardButton btn = new InlineKeyboardButton();
+        btn.setText(text);
+        btn.setCallbackData(callbackData);
+        return btn;
     }
 
-    private void sendWeatherData(long chatId, WeatherData wd) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("🌤 Погода в городе: ").append(wd.city != null ? wd.city : "не указано").append("\n");
-        sb.append("Температура: ").append(wd.temperature).append("°C").append("\n");
-        sb.append("Ощущается как: ").append(wd.feelsLike).append("°C").append("\n");
-        sb.append("Мин/Макс: ").append(wd.minTemperature).append("°C / ").append(wd.maxTemperature).append("°C").append("\n");
-        sb.append("Влажность: ").append(wd.humidity).append("%").append("\n");
-        sb.append("Облачность: ").append(wd.cloudCover).append("%").append("\n");
-        sb.append("Ветер: ").append(wd.windSpeed).append(" м/с, ").append(wd.windDirection).append("\n");
-        if (wd.sunrise != null && !wd.sunrise.isEmpty())
-            sb.append("Восход: ").append(wd.sunrise).append("\n");
-        if (wd.sunset != null && !wd.sunset.isEmpty())
-            sb.append("Закат: ").append(wd.sunset).append("\n");
-        sb.append("Описание: ").append(wd.description).append("\n");
+    // ---------------- SUBSCRIPTION ----------------
+    private void showSubscriptionMenu(long chatId) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText("Выберите действие:");
 
-        sendMessage(chatId, sb.toString());
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(createButton("Subscribe", "sub_subscribe"));
+        row.add(createButton("Unsubscribe", "sub_unsubscribe"));
+        rows.add(row);
+        markup.setKeyboard(rows);
+        msg.setReplyMarkup(markup);
+
+        try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
+    private void showSubscribeIntervalMenu(long chatId) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText("Выберите интервал подписки:");
 
-    private void sendMessage(long chatId, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(text);
-        sendMessage(message);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(createButton("Every Hour", "interval_hour"));
+        row.add(createButton("Every Day", "interval_day"));
+        row.add(createButton("Every Week", "interval_week"));
+        rows.add(row);
+        markup.setKeyboard(rows);
+        msg.setReplyMarkup(markup);
+
+        try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
     }
 
-    private void sendMessage(SendMessage message) {
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+    private void handleSubscribeCityInput(long chatId, String city) {
+        TempData data = tempData.get(chatId);
+        if (data == null) return;
+        Subscription s = SubscriptionManager.addSubscription(chatId, city, data.interval);
+        sendMessage(chatId, "Подписка создана: " + s);
+        tempData.remove(chatId);
+        userStates.put(chatId, UserState.START);
+    }
+
+    private void showUnsubscribeList(long chatId) {
+        List<Subscription> list = SubscriptionManager.callSubscribeList(chatId);
+        if (list.isEmpty()) {
+            sendMessage(chatId, "У вас нет подписок");
+            return;
         }
+        StringBuilder sb = new StringBuilder("Ваши подписки:\n");
+        for (Subscription s : list) sb.append(s).append("\n");
+        sendMessage(chatId, sb.toString());
+        sendMessage(chatId, "Введите ID подписки для удаления:");
+        userStates.put(chatId, UserState.UNSUBSCRIBE_ID);
     }
 
+    private void handleUnsubscribeIdInput(long chatId, String input) {
+        try {
+            int id = Integer.parseInt(input);
+            boolean removed = SubscriptionManager.removeSubscription(chatId, id);
+            sendMessage(chatId, removed ? "Подписка удалена" : "Такой подписки нет");
+        } catch (NumberFormatException e) {
+            sendMessage(chatId, "Введите корректный ID");
+        }
+        userStates.put(chatId, UserState.START);
+    }
+
+    // ---------------- UTIL ----------------
+    public void sendMessage(long chatId, String text) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText(text);
+        try { execute(msg); } catch (TelegramApiException e) { e.printStackTrace(); }
+    }
+
+    // ---------------- MAIN ----------------
     public static void main(String[] args) throws TelegramApiException {
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         Bot bot = new Bot();
